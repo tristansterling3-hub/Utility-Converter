@@ -53,37 +53,7 @@ The conversion work runs in the browser. Files are processed locally by the page
 - Browser image export is limited to formats the browser can read and write through canvas, so PNG, JPEG, and WebP are the main output formats.
 - This first version does not include game-engine-specific presets beyond power-of-two sizing and Y-flip support.
 
-## Project structure
-
-```text
-dist/
-  index.html
-  styles.css
-  app.js
-.openai/
-  hosting.json
-```
-
-The site is static and can be served from the `dist` folder.
-
-## Deployment
-
-This project is deployed as a static site from the `dist` folder.
-
-For OpenAI Sites, keep `.openai/hosting.json` so the existing Site project is updated instead of creating a new one.
-
-If deploying with another static host, use `dist` as the publish directory.
-
-## Local preview
-
-From the project folder, run:
-
-```powershell
-python -m http.server 4173 --directory dist
-```
-
-Then open:
-
-```text
-http://localhost:4173
-```
+# Future Plans
+- Right now, the site has limitations. I will continue working on the site when I need to convert new things.
+- I might turn this website into a app.
+- Possible Change to React, but for now it's a quick design with JavaScript.
