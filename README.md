@@ -2,8 +2,6 @@
 
 Asset Forge Converter is a small browser-based tool for personal game development workflows. It helps convert image files into engine-friendly formats and turns DOCX notes or briefs into PDFs without needing a backend service.
 
-Live site: https://asset-forge-converter.sp33dk9.chatgpt.site/
-
 ## What it does
 
 - Converts images to PNG, JPEG, or WebP.
@@ -65,6 +63,14 @@ dist/
 ```
 
 The site is static and can be served from the `dist` folder.
+
+## Deployment
+
+This project is deployed as a static site from the `dist` folder.
+
+For OpenAI Sites, keep `.openai/hosting.json` so the existing Site project is updated instead of creating a new one.
+
+If deploying with another static host, use `dist` as the publish directory.
 
 ## Local preview
 
