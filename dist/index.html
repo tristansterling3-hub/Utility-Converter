@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Asset Forge Converter</title>
+    <meta
+      name="description"
+      content="A private browser-based image converter and DOCX to PDF tool for game asset preparation."
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f172a'/%3E%3Cpath d='M7 22V10l9-5 9 5v12l-9 5-9-5Z' fill='%2322c55e'/%3E%3Cpath d='M16 5v22M7 10l9 5 9-5M7 22l9-7 9 7' stroke='%230f172a' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Local file forge</p>
+          <h1>Asset Forge Converter</h1>
+        </div>
+        <div class="status-pill" id="privacyStatus">Runs in your browser</div>
+      </header>
+
+      <section class="workspace" aria-label="File conversion workspace">
+        <div class="panel drop-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Image converter</h2>
+              <p>Drop texture, UI, VFX, UV, or concept images.</p>
+            </div>
+            <button class="icon-button" id="clearImages" type="button" title="Clear image queue" aria-label="Clear image queue">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+
+          <label class="drop-zone" id="imageDrop">
+            <input id="imageInput" type="file" accept="image/*" multiple />
+            <span class="drop-icon" aria-hidden="true">⬡</span>
+            <strong>Choose or drop images</strong>
+            <small>PNG, JPG, WebP, BMP, GIF, SVG, and most browser-readable images</small>
+          </label>
+
+          <div class="controls-grid">
+            <label>
+              Output
+              <select id="formatSelect">
+                <option value="image/png">PNG</option>
+                <option value="image/jpeg">JPEG</option>
+                <option value="image/webp">WebP</option>
+              </select>
+            </label>
+            <label>
+              Resize
+              <select id="resizeMode">
+                <option value="original">Original size</option>
+                <option value="pot">Nearest power of two</option>
+                <option value="custom">Custom max size</option>
+              </select>
+            </label>
+            <label>
+              Max size
+              <input id="maxSize" type="number" min="16" max="8192" step="16" value="2048" />
+            </label>
+            <label>
+              Quality
+              <input id="qualityRange" type="range" min="40" max="100" value="92" />
+            </label>
+          </div>
+
+          <div class="switch-row">
+            <label><input id="preserveAlpha" type="checkbox" checked /> Keep transparent background when possible</label>
+            <label><input id="flipY" type="checkbox" /> Flip Y for engine import checks</label>
+          </div>
+
+          <div class="action-row">
+            <button class="primary" id="convertImages" type="button">Convert images</button>
+            <button class="secondary" id="downloadZip" type="button" disabled>Download ZIP</button>
+          </div>
+
+          <ul class="file-list" id="imageList" aria-live="polite"></ul>
+        </div>
+
+        <div class="panel output-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Preview and output</h2>
+              <p id="outputSummary">No files converted yet.</p>
+            </div>
+          </div>
+          <div class="preview-board" id="previewBoard">
+            <div class="empty-state">
+              <span aria-hidden="true">▧</span>
+              <p>Converted assets will show here with dimensions and download links.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="doc-section panel" aria-label="DOCX to PDF converter">
+        <div class="panel-heading">
+          <div>
+            <h2>DOCX to PDF</h2>
+            <p>Convert design notes, briefs, checklists, or export sheets into a PDF.</p>
+          </div>
+          <button class="secondary compact" id="clearDoc" type="button">Clear</button>
+        </div>
+
+        <div class="doc-grid">
+          <label class="drop-zone doc-drop" id="docDrop">
+            <input id="docInput" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+            <span class="drop-icon" aria-hidden="true">▤</span>
+            <strong>Choose or drop a DOCX</strong>
+            <small>Best for text-heavy docs. Complex Word layouts may need a final visual check.</small>
+          </label>
+
+          <div class="doc-actions">
+            <button class="primary" id="convertDoc" type="button" disabled>Create PDF</button>
+            <button class="secondary" id="printDoc" type="button" disabled>Print / Save as PDF</button>
+            <p id="docStatus">Waiting for a DOCX file.</p>
+          </div>
+        </div>
+
+        <article class="doc-preview" id="docPreview" aria-label="DOCX preview"></article>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
