@@ -2,7 +2,7 @@
 
 Asset Forge Converter is a small browser-based tool for personal game development workflows. It helps convert image files into engine-friendly formats and turns DOCX notes or briefs into PDFs without needing a backend service.
 
-Live site: https://asset-forge-converter.sp33dk9.chatgpt.site/
+Repository: https://github.com/tristansterling3-hub/image-converter-docx-to-pdf
 
 ## What it does
 
@@ -65,6 +65,14 @@ dist/
 ```
 
 The site is static and can be served from the `dist` folder.
+
+## GitHub deployment
+
+This project is intended to be deployed from GitHub as a static site.
+
+For GitHub Pages, the included `.github/workflows/deploy-pages.yml` workflow publishes the contents of the `dist` folder. In the repository settings, set GitHub Pages to deploy from **GitHub Actions**.
+
+If deploying with another static host, use `dist` as the publish directory.
 
 ## Local preview
 
