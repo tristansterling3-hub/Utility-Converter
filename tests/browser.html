@@ -1,0 +1,75 @@
+<!doctype html><meta charset="utf-8"><title>Asset Forge integration checks</title>
+<style>body{font:16px system-ui;background:#eff4f8;margin:20px}iframe{width:100%;height:800px;border:1px solid #789}li{margin:8px}button{padding:12px}</style>
+<h1>Converter integration checks</h1>
+<button id="background">Test real AI background removal</button>
+<ol id="results"></ol>
+<iframe src="../dist/" id="app"></iframe>
+<script>
+const app = document.querySelector('#app');
+const results = document.querySelector('#results');
+function report(message) { const li=document.createElement('li'); li.textContent=message; results.append(li); }
+function check(condition, message) { if (!condition) throw new Error(message); report('PASS: '+message); }
+let sample;
+app.onload = async () => {
+  try {
+    const win=app.contentWindow;
+    const zip=new win.JSZip();
+    zip.file('[Content_Types].xml',`<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="application/xml"/><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/></Types>`);
+    zip.file('_rels/.rels',`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`);
+    zip.file('word/_rels/document.xml.rels',`<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/></Relationships>`);
+    zip.file('word/header1.xml',`<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p><w:r><w:t>RESUME / HEADER</w:t></w:r></w:p></w:hdr>`);
+    zip.file('word/document.xml',`<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>
+      <w:p><w:pPr><w:spacing w:after="120"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:b/><w:color w:val="194B78"/><w:sz w:val="40"/></w:rPr><w:t>JAMIE EXAMPLE</w:t></w:r></w:p>
+      <w:p><w:r><w:t>Software engineer | Sample resume for layout testing</w:t></w:r></w:p>
+      <w:tbl><w:tblPr><w:tblW w:w="9360" w:type="dxa"/><w:tblBorders><w:bottom w:val="single" w:sz="8" w:color="194B78"/></w:tblBorders></w:tblPr><w:tblGrid><w:gridCol w:w="2500"/><w:gridCol w:w="6860"/></w:tblGrid><w:tr><w:tc><w:tcPr><w:tcW w:w="2500" w:type="dxa"/><w:shd w:fill="E7EFF7"/></w:tcPr><w:p><w:r><w:rPr><w:b/></w:rPr><w:t>SKILLS</w:t></w:r></w:p><w:p><w:r><w:t>JavaScript</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="6860" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:b/></w:rPr><w:t>EXPERIENCE</w:t></w:r></w:p><w:p><w:r><w:t>Built useful tools and preserved document formatting.</w:t></w:r></w:p></w:tc></w:tr></w:tbl>
+      <w:p><w:pPr><w:sectPr><w:headerReference w:type="default" r:id="rId1"/><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720"/></w:sectPr></w:pPr></w:p>
+      <w:p><w:r><w:t>LANDSCAPE SECOND PAGE</w:t></w:r></w:p><w:sectPr><w:type w:val="nextPage"/><w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/><w:pgMar w:top="720" w:right="720" w:bottom="720" w:left="720"/></w:sectPr>
+    </w:body></w:document>`);
+    sample=new File([await zip.generateAsync({type:'blob'})],'sample-resume.docx');
+    win.handleDocFile([sample]);
+    await win.convertDocxToHtml();
+    const frame=win.document.querySelector('#docPreview');
+    const d=frame.contentDocument;
+    const pages=d.querySelectorAll('section.docx');
+    check(pages.length===2,'two document sections become two pages');
+    check(pages[0].style.width==='612pt' && pages[0].style.minHeight==='792pt','Letter page dimensions preserved');
+    check(parseFloat(pages[1].style.width)>parseFloat(pages[1].style.minHeight),'landscape dimensions preserved');
+    check(d.querySelector('table') && d.querySelector('header'),'resume table and header preserved');
+    check(d.body.textContent.includes('JAMIE EXAMPLE'),'resume text remains selectable DOM text');
+    check(d.querySelector('meta[http-equiv]') && d.title==='sample-resume','document isolation and title survive rendering');
+    check(d.querySelector('section').style.page==='docxPage0','print paper size assigned per page');
+    check(!win.document.querySelector('#printDoc').disabled,'PDF printing enabled after render');
+    check(!win.document.querySelector('#downloadPdf').disabled,'direct PDF download enabled');
+    check(win.document.querySelectorAll('#pdfPages canvas').length===2,'actual PDF preview renders both pages');
+    const pdfBlob=await (await fetch(win.document.querySelector('#openPdf').href)).blob();
+    check((await pdfBlob.slice(0,5).text())==='%PDF-','preview link opens a real generated PDF');
+    win.handleDocFile([new File(['invalid'],'broken.docx')]); await win.convertDocxToHtml();
+    check(win.document.querySelector('#printDoc').disabled && win.document.querySelector('#docStatus').textContent.includes('Could not convert'),'corrupt DOCX cannot print stale content');
+    check(win.document.querySelector('#downloadPdf').disabled && win.document.querySelector('#pdfOutput').hidden,'corrupt DOCX cannot download a stale PDF');
+    win.handleDocFile([sample]); await win.convertDocxToHtml();
+    report('DOCX checks complete. Scroll inside the app below to inspect or print the synthetic resume.');
+  } catch(error) { report('FAIL: '+error.stack); }
+};
+document.querySelector('#background').onclick=async()=>{
+  const button=document.querySelector('#background'); button.disabled=true;
+  try {
+    const win=app.contentWindow;
+    const blob=await (await fetch('../.qa/sample.png')).blob();
+    win.document.querySelector('#removeBackground').checked=true;
+    win.syncImageControls();
+    win.handleImageFiles([new File([blob],'sample.png',{type:'image/png'})]);
+    report('Running real AI inference; model download may take a few minutes.');
+    await win.handleImageConvert();
+    const image=win.document.querySelector('.asset-card img');
+    check(Boolean(image),'AI worker returns a cutout');
+    await image.decode();
+    const canvas=document.createElement('canvas'); canvas.width=image.naturalWidth; canvas.height=image.naturalHeight;
+    const ctx=canvas.getContext('2d'); ctx.drawImage(image,0,0);
+    const rgba=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+    let transparent=0,opaque=0; for(let i=3;i<rgba.length;i+=4) { if(rgba[i]<20) transparent++; if(rgba[i]>235) opaque++; }
+    check(transparent>100 && opaque>100,`cutout has transparent background (${transparent} pixels) and retained subject (${opaque} pixels)`);
+    report('All real background-removal checks complete.');
+  } catch(error) { report('FAIL: '+error.stack); }
+  finally { button.disabled=false; }
+};
+</script>

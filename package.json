@@ -1,0 +1,23 @@
+{
+  "name": "asset-forge-converter",
+  "version": "1.1.0",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.cjs"
+  },
+  "dependencies": {
+    "@imgly/background-removal": "1.7.0",
+    "docx-preview": "0.4.1",
+    "html2canvas": "1.4.1",
+    "jspdf": "4.2.1",
+    "jszip": "3.10.1",
+    "onnxruntime-web": "1.21.0",
+    "pdfjs-dist": "5.4.624"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12",
+    "jsdom": "26.1.0",
+    "pdf-lib": "1.17.1"
+  }
+}

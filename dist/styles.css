@@ -46,6 +46,19 @@ button:disabled {
   opacity: 0.5;
 }
 
+[hidden] { display: none !important; }
+
+.help-text {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 4px; }
+.drop-zone:focus-within { outline: 2px solid var(--accent-2); outline-offset: 4px; }
+.drop-zone.is-disabled { opacity: 0.55; cursor: wait; }
+
 .shell {
   width: min(1420px, calc(100% - 32px));
   margin: 0 auto;
@@ -395,18 +408,44 @@ input[type="range"] {
 .doc-preview {
   display: none;
   margin-top: 16px;
-  padding: 24px;
-  color: #111827;
-  background: #ffffff;
+  width: 100%;
+  height: 780px;
+  max-height: 80vh;
+  border: 1px solid var(--line);
+  background: #e4e7ec;
   border-radius: 8px;
-  min-height: 220px;
-  line-height: 1.55;
-  overflow: auto;
 }
 
 .doc-preview.is-visible {
   display: block;
 }
+
+/* Keep a full-size layout surface for rendering, independent of screen size. */
+.doc-source {
+  position: absolute;
+  left: -100000px;
+  top: 0;
+  width: 1200px;
+  height: 1000px;
+  max-height: none;
+  margin: 0;
+}
+
+.pdf-output { margin-top: 20px; }
+.pdf-output h3 { margin: 0; font-size: 1rem; }
+.pdf-output a { color: var(--accent); }
+.pdf-pages {
+  max-height: 80vh;
+  overflow: auto;
+  padding: 18px;
+  background: #202b3d;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-top: 12px;
+}
+.pdf-pages figure { margin: 0 auto 20px; max-width: 1000px; }
+.pdf-pages canvas { display: block; max-width: 100%; height: auto; margin: auto; background: white; box-shadow: var(--shadow); }
+.pdf-pages figcaption { color: var(--muted); text-align: center; margin-top: 12px; font-size: 0.85rem; }
 
 @media (max-width: 980px) {
   .workspace,
@@ -418,6 +457,19 @@ input[type="range"] {
     min-height: 280px;
   }
 }
+
+[hidden] { display: none !important; }
+.cutout-editor { width: min(1000px, 94vw); max-height: 94vh; overflow: auto; color: var(--text); background: #111c2d; border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+.cutout-editor::backdrop { background: #000b; }
+.cutout-editor p { color: var(--muted); }
+.editor-controls { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 16px 0; }
+.editor-controls label { display: grid; gap: 5px; }
+.editor-viewport { overflow: auto; max-height: 55vh; background: #263244; border: 1px solid var(--line); }
+.editor-layers { position: relative; margin: auto; background: repeating-conic-gradient(#657080 0% 25%, #929ba8 0% 50%) 0 0 / 20px 20px; }
+.editor-layers canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.editor-original { opacity: .25; pointer-events: none; }
+.editor-paint { touch-action: none; cursor: crosshair; }
+.asset-card button { margin: 8px 0; }
 
 @media (max-width: 640px) {
   .shell {
@@ -436,27 +488,5 @@ input[type="range"] {
 
   .status-pill {
     width: fit-content;
-  }
-}
-
-@media print {
-  body {
-    background: #ffffff;
-  }
-
-  .shell > :not(.doc-section),
-  .doc-section > :not(.doc-preview),
-  .panel-heading {
-    display: none !important;
-  }
-
-  .doc-section,
-  .doc-preview {
-    display: block;
-    box-shadow: none;
-    border: 0;
-    padding: 0;
-    color: #111827;
-    background: #ffffff;
   }
 }

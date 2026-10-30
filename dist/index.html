@@ -6,14 +6,14 @@
     <title>Asset Forge Converter</title>
     <meta
       name="description"
-      content="A private browser-based image converter and DOCX to PDF tool for game asset preparation."
+      content="Convert images, remove backgrounds locally, and export layout-aware DOCX previews to PDF."
     />
     <link
       rel="icon"
       type="image/svg+xml"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f172a'/%3E%3Cpath d='M7 22V10l9-5 9 5v12l-9 5-9-5Z' fill='%2322c55e'/%3E%3Cpath d='M16 5v22M7 10l9 5 9-5M7 22l9-7 9 7' stroke='%230f172a' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=91639de64488" />
   </head>
   <body>
     <main class="shell">
@@ -72,12 +72,20 @@
           </div>
 
           <div class="switch-row">
+            <label><input id="removeBackground" type="checkbox" aria-describedby="backgroundHelp" /> Remove image background (AI)</label>
             <label><input id="preserveAlpha" type="checkbox" checked /> Keep transparent background when possible</label>
             <label><input id="flipY" type="checkbox" /> Flip Y for engine import checks</label>
           </div>
+          <p class="help-text" id="backgroundHelp">Keeps the main subject and exports a transparent PNG. The first run downloads an AI model (about 80 MB plus runtime files); your images stay on this device.</p>
+          <div id="cutoutSettings" class="controls-grid" hidden>
+            <label>Cutout style<select id="cutoutStyle"><option value="solid">Keep solid details — artwork / UI</option><option value="soft">Soft edges — hair / smoke / glows</option></select></label>
+            <label>Detail recovery<input id="detailRecovery" type="range" min="0" max="100" value="85" /><small>More keeps faint parts, but can leave more background.</small></label>
+          </div>
+          <p id="cutoutHelp" class="help-text" hidden>Use Refine cutout after conversion to restore missing parts or erase leftovers. AI can miss details in textures, UV maps, and effects. GIFs export a still first frame, not animation.</p>
 
           <div class="action-row">
             <button class="primary" id="convertImages" type="button">Convert images</button>
+            <button class="secondary" id="cancelImages" type="button" hidden>Cancel</button>
             <button class="secondary" id="downloadZip" type="button" disabled>Download ZIP</button>
           </div>
 
@@ -88,7 +96,7 @@
           <div class="panel-heading">
             <div>
               <h2>Preview and output</h2>
-              <p id="outputSummary">No files converted yet.</p>
+              <p id="outputSummary" role="status" aria-live="polite">No files converted yet.</p>
             </div>
           </div>
           <div class="preview-board" id="previewBoard">
@@ -104,7 +112,7 @@
         <div class="panel-heading">
           <div>
             <h2>DOCX to PDF</h2>
-            <p>Convert design notes, briefs, checklists, or export sheets into a PDF.</p>
+            <p>Create a PDF, check its pages here, then download the same file.</p>
           </div>
           <button class="secondary compact" id="clearDoc" type="button">Clear</button>
         </div>
@@ -114,23 +122,33 @@
             <input id="docInput" type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
             <span class="drop-icon" aria-hidden="true">▤</span>
             <strong>Choose or drop a DOCX</strong>
-            <small>Best for text-heavy docs. Complex Word layouts may need a final visual check.</small>
+            <small>Preserves supported page sizes, margins, tables, images, headers, and fonts.</small>
           </label>
 
           <div class="doc-actions">
-            <button class="primary" id="convertDoc" type="button" disabled>Create PDF</button>
-            <button class="secondary" id="printDoc" type="button" disabled>Print / Save as PDF</button>
-            <p id="docStatus">Waiting for a DOCX file.</p>
+            <button class="primary" id="convertDoc" type="button" disabled>Create PDF preview</button>
+            <button class="primary" id="downloadPdf" type="button" disabled>Download PDF</button>
+            <button class="secondary" id="printDoc" type="button" disabled>Print (optional)</button>
+            <p id="docStatus" role="status" aria-live="polite">Waiting for a DOCX file.</p>
           </div>
         </div>
-
-        <article class="doc-preview" id="docPreview" aria-label="DOCX preview"></article>
+        <p class="help-text">Download PDF saves the file shown below without a print dialog. It uses high-resolution page images, so text is not selectable or searchable. For resumes that need selectable text, use the optional Print export or Word’s PDF export. Missing fonts and advanced Word layouts can still differ.</p>
+        <section class="pdf-output" id="pdfOutput" aria-label="Generated PDF" hidden>
+          <div class="panel-heading">
+            <h3>PDF preview</h3>
+            <a id="openPdf" target="_blank" rel="noopener">Open PDF in new tab</a>
+          </div>
+          <p id="pdfPreviewStatus" class="help-text" role="status"></p>
+          <div id="pdfPages" class="pdf-pages" aria-label="PDF pages" tabindex="0"></div>
+        </section>
+        <iframe class="doc-preview doc-source" id="docPreview" title="Document layout for optional printing" aria-hidden="true" tabindex="-1" sandbox="allow-same-origin allow-modals"></iframe>
       </section>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="app.js"></script>
+    <script src="vendor/jszip.min.js?v=acc7e41455a8"></script>
+    <script src="vendor/docx-preview.min.js?v=af970685fcb4"></script>
+    <script src="pdf-tools.js?v=dc2072b49e23"></script>
+    <script src="cutout-tools.js?v=7b7fd3a96aa8"></script>
+    <script src="app.js?v=6d475c01673d"></script>
   </body>
 </html>
