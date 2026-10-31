@@ -61,6 +61,8 @@ This architecture is proposed; a plugin system does not exist yet.
 
 Potential later integrations include saved Unity/Unreal/Godot export profiles, local folder workflows, an installable offline app, and a CLI for repeatable batches. Validate each against user demand before adding maintenance cost.
 
+The original future plans also include a possible desktop app and a possible React migration. Keep the current plain JavaScript design until a concrete workflow or interface need justifies either change. Development can continue incrementally as new conversion needs arise.
+
 ## Public release preparation
 
 - [ ] Decide the project's license and resolve dependency/model licensing requirements; see [Open-source plan](OPEN_SOURCE.md).

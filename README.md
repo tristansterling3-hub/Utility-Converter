@@ -2,6 +2,10 @@
 
 Asset Forge Converter is a browser-based utility workspace for game developers, artists, and everyday file preparation. Convert and resize images, remove backgrounds, repair cutouts, and preview and download PDFs from DOCX files. File processing runs locally in the browser; no application backend is required.
 
+![Utility-Converter](ConverterSite.png)
+
+*Earlier version of the interface. See the current app for the new background-removal and PDF controls.*
+
 ## Project documents
 
 - [Roadmap](ROADMAP.md): proposed improvements, new utilities, and integration priorities.
@@ -147,6 +151,8 @@ A project-level license has not yet been selected. Third-party components retain
 ## Deployment
 
 This project is deployed as a static site from the `dist` folder.
+
+For GitHub Pages configured to serve the repository root, `index.html` redirects to `dist/`, preserving the existing site URL. The GitHub Actions workflow also supports deploying `dist` directly when Pages is configured to use GitHub Actions.
 
 For OpenAI Sites, keep `.openai/hosting.json` so the existing Site project is updated instead of creating a new one.
 
