@@ -10,7 +10,6 @@ Asset Forge Converter is a browser-based utility workspace for game developers, 
 
 - [Roadmap](ROADMAP.md): proposed improvements, new utilities, and integration priorities.
 - [Contributing](CONTRIBUTING.md): development workflow, testing, and useful bug reports.
-- [Open-source plan](OPEN_SOURCE.md): recommendation, licensing decisions, and release preparation.
 
 ## Quick start
 
