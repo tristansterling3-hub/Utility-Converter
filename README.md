@@ -116,8 +116,6 @@ dist/
   cutout-tools.js           # Generated editor/mask bundle
   pdf-tools.js              # Generated PDF bundle
   vendor/                  # Copied libraries, PDF worker, and license files
-.openai/
-  hosting.json             # Existing hosting project configuration
 package.json
 package-lock.json
 ROADMAP.md
